@@ -1748,7 +1748,7 @@ function user_roles($membersonly = FALSE, $permission = NULL) {
   );
 
   if (empty($permission)) {
-    $cid = $membersonly ? 'membersonly' : 'default';
+    $cid = (int) $membersonly;
     if (!empty($user_roles[$cid])) {
       return $user_roles[$cid];
     }
