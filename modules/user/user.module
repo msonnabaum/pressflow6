@@ -1740,11 +1740,19 @@ function _user_mail_text($key, $language = NULL, $variables = array()) {
  *   value.
  */
 function user_roles($membersonly = FALSE, $permission = NULL) {
+  static $user_roles = array();
   // System roles take the first two positions.
   $roles = array(
     DRUPAL_ANONYMOUS_RID => NULL,
     DRUPAL_AUTHENTICATED_RID => NULL,
   );
+
+  if (empty($permission)) {
+    $cid = $membersonly ? 'membersonly' : 'default';
+    if (!empty($user_roles[$cid])) {
+      return $user_roles[$cid];
+    }
+  }
 
   if (!empty($permission)) {
     $result = db_query("SELECT r.* FROM {role} r INNER JOIN {permission} p ON r.rid = p.rid WHERE p.perm LIKE '%%%s%%' ORDER BY r.name", $permission);
@@ -1767,6 +1775,11 @@ function user_roles($membersonly = FALSE, $permission = NULL) {
       default:
         $roles[$role->rid] = $role->name;
     }
+  }
+
+  if (isset($cid)) {
+    $user_roles[$cid] = array_filter($roles);
+    return $user_roles[$cid];
   }
 
   // Filter to remove unmatched system roles.
